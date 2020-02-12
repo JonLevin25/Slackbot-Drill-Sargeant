@@ -1,0 +1,6 @@
+{
+    "port": "5000",
+    "name": "Drill Sargeant",
+    "route": "/v1/drill-sargeant",
+    "webhook_url": "https://hooks.slack.com/services/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"
+}
