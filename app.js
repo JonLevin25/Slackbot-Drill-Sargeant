@@ -1,27 +1,46 @@
-const express = require('express');
-// var Slackbot = require('slackbot')
-
-//https://www.youtube.com/watch?v=8XBNz7cKvsc
-
-const request = require('request-promise');
 const fs = require('fs');
-const hook_url = 'https://hooks.slack.com/services/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'
-const bodyParser = require('body-parser')
-const app = express();
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const Scheduler = require('./src/excersize_scheduler');
+
+const SlackMessage =  require('./src/slack/SlackMessage');
+const { sendSlackMessage, sendTestMessage } = require('./src/slack_wrapper');
+
+/* Partial flow used from: https://www.youtube.com/watch?v=8XBNz7cKvsc */
 
 const config = JSON.parse(fs.readFileSync('./config.json'));
-console.log("Config loaded!")
+console.log("Config loaded!");
 
+// Init
+const app = express();
 app.use(bodyParser.json());
+const scheduler = new Scheduler(config.google_sheet_id, config.google_sheet_range);
+scheduler.start(30);
 
+const sendSlackExcersize = (excersizeModel) => {
+    const {time, excersize} = excersizeModel;
+    let slackMessage = new SlackMessage(`ITS TIME FOR ${excersize} MAGGOTS!`);
+    slackMessage.addAttachment(`*${excersize}* [${time}]`);
+    sendSlackMessage(slackMessage);
+}
+
+scheduler.on('excersize', excersizeModel => {
+    sendSlackExcersize(excersizeModel)
+})
+
+
+// --- UNUSED --- 
 app.get('/', (req, res) => {
     console.log("Home hit!");
     res.end("HIT!");
 });
 
+// Receive mentions from slack - currently unused
 app.post(config.route, (req, res) => {
-
     console.log(`request: ${req.body}`)
+
+    // Slack route verification
     if (req.body.type == 'url_verification'){
         let challenge = req.body.challenge;
 
@@ -30,32 +49,8 @@ app.post(config.route, (req, res) => {
     }
 });
 
-const slackPostMessage = async function(hook_url, slackBody){
-    const slackBody = {
-        mkdwn: true,
-        text: `My slack message`,
-        attachments: [{
-            color: 'good',
-            text: 'test text'
-        }]
-    };
-
-    try {
-        const res = await request({
-            url: hook_url,
-            method: 'POST',
-            body: slackBody,
-            json: true
-        });
-
-    } catch (e){
-        console.log("Error! " + e);
-    }
-
-    debugger;
-};
-
-
 //postMessage(config.webhook_url, slackBody);
 
 app.listen(config.port);
+
+// sendTestMessage('TEST!');

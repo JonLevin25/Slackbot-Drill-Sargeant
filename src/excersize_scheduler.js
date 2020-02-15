@@ -3,18 +3,21 @@ const { parse } = require('./sheets_parse');
 const {todayShortDayStr, currTimeStr: nowTimeStr, timeStringInRangeExclusive: timeStrInRangeExclusive} = require('./helpers');
 
 class Scheduler extends EventEmitter{
-    start(sheet_id, sheet_range, updateMs){
+    constructor(sheet_id, sheet_range){
+        super();
         this.sheet_id = sheet_id;
         this.sheet_range = sheet_range;
-        this.initialized = false; // init after first update
+    }
+
+    start(updateSecs){
 
         this.day = todayShortDayStr();
         // this.lastTickTimeStr = nowTimeStr();
         // TESTING:L REMOVE!
-        this.lastTickTimeStr = '00:00';
+        this.lastTickTimeStr = nowTimeStr();
         
         const sched = this;
-        setInterval(() => update(sched), updateMs);
+        setInterval(() => update(sched), updateSecs * 1000);
         update(sched);
     }
 }
@@ -23,7 +26,7 @@ function getExcersizes(scheduler, dayStr, startTimeStr, endTimeStr){
     return parse(scheduler.sheet_id, scheduler.sheet_range)
         .then(weekModel => {
             const today_excersizes = weekModel[dayStr];
-            // console.log(`getExcersizes(${dayStr}, ${startTimeStr}, ${endTimeStr}). TODAY: ${today_excersizes}`);
+            // console.log(`getExcersizes(${dayStr}, ${startTimeStr}, ${endTimeStr}). TODAY: ${JSON.stringify(today_excersizes)}`);
             const excersizeModels = today_excersizes.filter(day => timeStrInRangeExclusive(day.time, startTimeStr, endTimeStr));
             return excersizeModels;
         })
@@ -32,7 +35,7 @@ function getExcersizes(scheduler, dayStr, startTimeStr, endTimeStr){
 function update(scheduler){
     const currTimeStr = nowTimeStr();
     const currDay = todayShortDayStr();
-    //console.log(`update! currTime: ${currTimeStr}. LastTime: ${scheduler.lastTickTimeStr}`);
+    console.log(`update! currTime: ${currTimeStr}. LastTime: ${scheduler.lastTickTimeStr}`);
 
     const dayRollover = currDay !== scheduler.day;
     const rangeStart = dayRollover ? null : scheduler.lastTickTimeStr; // if day roll over disregard last timeStr
@@ -40,7 +43,7 @@ function update(scheduler){
     // Disregard excersizes on first run, otherwise we'd send all excersizes till current time
     getExcersizes(scheduler, currDay, rangeStart, nowTimeStr())
     .then(excersizeModels => {
-        //console.log(`Excersizes found: ${excersizeModels}`);
+        console.log(`Excersizes found: ${excersizeModels.length}`);
         excersizeModels.forEach(excersize => {
             // console.log('Excersize' + JSON.stringify(excersize));
             scheduler.emit('excersize', excersize)}
@@ -51,6 +54,8 @@ function update(scheduler){
     scheduler.day = currDay;
     scheduler.lastTickTimeStr = currTimeStr;
 }
+
+module.exports = Scheduler;
 
 // TESTS
 // const sched = new Scheduler();

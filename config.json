@@ -2,4 +2,6 @@
     "port": "5000",
     "name": "Drill Sargeant",
     "route": "/v1/drill-sargeant",
+    "google_sheet_id": "1j2qYteoEAysMf1lzSR3_W5UP6gWYyeVw31lOkYv5Gso",
+    "google_sheet_range": "AllaBaballa!A1:H12"
 }
