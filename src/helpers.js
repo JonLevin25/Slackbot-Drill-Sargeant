@@ -20,8 +20,8 @@ function compareTimeStrings(timeStr1, timeStr2){
 }
 
 function timeStringInRangeExclusive(timeStr, lowTimeStr, highTimeStr){
-    const isAboveLowThreshold = compareTimeStrings(timeStr, lowTimeStr) === +1;
-    const isBelowHighThreshold = compareTimeStrings(timeStr, highTimeStr) === -1;
+    const isAboveLowThreshold = lowTimeStr && compareTimeStrings(timeStr, lowTimeStr) === +1;
+    const isBelowHighThreshold = highTimeStr && compareTimeStrings(timeStr, highTimeStr) === -1;
     return isAboveLowThreshold && isBelowHighThreshold;
 }
 
