@@ -48,14 +48,14 @@ function parseRowsSorted(header, rows){
         const [time, ...excersizesByDay] = row;
         excersizesByDay.map((excersize, i) => {
             const day = days[i];
-            weekModel[day].push([time, excersize]);
+            weekModel[day].push({time, excersize});
         });
     });
     
     // Sort day (array of [time, excersize] pairs) by time
     days.forEach(day => {
         dayModel = weekModel[day];
-        dayModel.sort((day1, day2) => compareTimeStrings(day1[0], day2[0]));
+        dayModel.sort((day1, day2) => compareTimeStrings(day1.time, day2.time));
     })
 
     return weekModel;
