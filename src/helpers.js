@@ -20,7 +20,7 @@ function compareTimeStrings(timeStr1, timeStr2){
 }
 
 function todayShortDayStr(){
-    const i = new Date.getDay();
+    const i = new Date().getDay();
     return dayMap[i];
 }
 
