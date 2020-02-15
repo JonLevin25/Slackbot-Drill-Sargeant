@@ -30,7 +30,16 @@ app.post(config.route, (req, res) => {
     }
 });
 
-const postMessage = async function(hook_url, slackBody){
+const slackPostMessage = async function(hook_url, slackBody){
+    const slackBody = {
+        mkdwn: true,
+        text: `My slack message`,
+        attachments: [{
+            color: 'good',
+            text: 'test text'
+        }]
+    };
+
     try {
         const res = await request({
             url: hook_url,
@@ -46,15 +55,7 @@ const postMessage = async function(hook_url, slackBody){
     debugger;
 };
 
-const slackBody = {
-    mkdwn: true,
-    text: `My slack message`,
-    attachments: [{
-        color: 'good',
-        text: 'test text'
-    }]
-};
 
 //postMessage(config.webhook_url, slackBody);
 
-app.listen(config.port, '0.0.0.0');
+app.listen(config.port);
