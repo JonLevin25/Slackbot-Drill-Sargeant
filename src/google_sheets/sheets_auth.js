@@ -8,16 +8,17 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const SECRET_PATH = (filename) => path.resolve(__dirname, '../../secrets/', filename);
-const TOKEN_PATH = SECRET_PATH('google_sheets_token.json');
+const SECRET_PATH = (filename) => path.resolve(__dirname, '../../secrets/google/', filename);
+const TOKEN_PATH = SECRET_PATH('token.json');
 
-function authorize(callback){
-  // Load client secrets from a local file.
-  fs.readFile(SECRET_PATH('google_sheets_credentials.json'), (err, content) => {
-    if (err) return console.log('Error loading client secret file:', err);
-    
-    // Authorize a client with credentials, then call the Google Sheets API.
-    authorize_with_cred(JSON.parse(content), callback);
+function authorize(){
+  return new Promise((resolve, reject) => {
+    // Load client secrets from a local file.
+    fs.readFile(SECRET_PATH('credentials.json'), (err, content) => {
+      if (err) reject(`Error loading client secret file: ${err}`);
+      // Authorize a client with credentials, then call the Google Sheets API.
+      authorize_with_cred(JSON.parse(content), (auth) => resolve(auth));
+    });
   });
 }
 
@@ -31,7 +32,7 @@ function authorize(callback){
 function authorize_with_cred(credentials, callback) {
   const {client_secret, client_id, redirect_uris} = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
-      client_id, client_secret, redirect_uris[0]);
+    client_id, client_secret, redirect_uris[0]);
 
   // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, (err, token) => {
