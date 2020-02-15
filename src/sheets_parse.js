@@ -22,7 +22,7 @@ function parseWithAuth(auth, sheet_id, range) {
         }, (err, res) => {
             if (err) return reject(err);
             
-            testWrite(res);
+            //testWrite(res);
             const [header, ...rows] = res.data.values;
             const parsedModel = parseRowsSorted(header, rows);
             resolve(parsedModel);
