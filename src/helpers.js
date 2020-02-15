@@ -19,6 +19,12 @@ function compareTimeStrings(timeStr1, timeStr2){
     return 0;
 }
 
+function timeStringInRangeExclusive(timeStr, lowTimeStr, highTimeStr){
+    const isAboveLowThreshold = compareTimeStrings(timeStr, lowTimeStr) === +1;
+    const isBelowHighThreshold = compareTimeStrings(timeStr, highTimeStr) === -1;
+    return isAboveLowThreshold && isBelowHighThreshold;
+}
+
 function todayShortDayStr(){
     const i = new Date().getDay();
     return dayMap[i];
@@ -29,4 +35,7 @@ function currTimeStr(){
     return currDate.toTimeString().substr(0, 8);
 }
 
-module.exports = {compareTimeStrings, todayShortDayStr, currTimeStr };
+module.exports = {compareTimeStrings, todayShortDayStr, currTimeStr, timeStringInRangeExclusive};
+
+// TESTS
+// console.log('Is in range: ' + timeStringInRangeExclusive('11:00', '1:00', '12:00'));

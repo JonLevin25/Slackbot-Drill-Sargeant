@@ -12,7 +12,7 @@ const parse = (sheet_id, range) => {
     return authorize().then(auth => parseWithAuth(auth, sheet_id, range));
 };
 
-function parseWithAuth(auth, sheet_id, range) {  
+function parseWithAuth(auth, sheet_id, range) {
     return new Promise((resolve, reject) => {
         const sheets = google.sheets({ version: 'v4', auth });
 
