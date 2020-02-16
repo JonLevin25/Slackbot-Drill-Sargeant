@@ -1,16 +1,27 @@
 const authorize = require("./google_sheets/sheets_auth");
 const {google} = require("googleapis");
 const fs = require('fs');
-const { compareTimeStrings } = require('./helpers');
+const { compareTimeStrings, todayShortDayStr } = require('./helpers');
 
 // Parse a sheet range into an object of form:
 // { Sun: [[<time1>, <excersize1>], [time2, excersize2]], Mon: [...] ... }
 // Where each day is garunteed to be sorted by <time>
 //
 // See google_sheets/sheets/test.js `listMajors` for sheet_id/range value example
-const parse = (sheet_id, range) => {
-    return authorize().then(auth => parseWithAuth(auth, sheet_id, range));
+const getWeekModel = async (sheet_id, range) => {
+    const auth = await authorize()
+    return await parseWithAuth(auth, sheet_id, range);
 };
+
+/* Get the model for a given day, default to today */
+const getDayModel = async (sheet_id, range, day = null) => {
+    const weekModel = await getWeekModel(sheet_id, range);
+    
+    // default to today
+    if (!day) day = todayShortDayStr();
+
+    return weekModel[day];
+}
 
 function parseWithAuth(auth, sheet_id, range) {
     return new Promise((resolve, reject) => {
@@ -68,10 +79,10 @@ function testWrite(obj){
     });
 }
 
-module.exports = { parse };
+module.exports = { getWeekModel, getDayModel };
 
 
 // TESTING - remove
 // const sheet_id = "1j2qYteoEAysMf1lzSR3_W5UP6gWYyeVw31lOkYv5Gso";
 // const range = "WeeklySchedule!A1:H12";
-// parse(sheet_id, range).then(console.log).catch(console.error);
+// getWeekModel(sheet_id, range).then(console.log).catch(console.error);

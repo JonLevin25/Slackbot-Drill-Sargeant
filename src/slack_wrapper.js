@@ -15,7 +15,6 @@ const sendSlackMessage = async function(slackMessage){
         console.error('sendSlackMessage expects param of type SlackMessage!');
 
     try {
-        console.log(webhook_url);
         const res = await request({
             uri: webhook_url,
             method: 'POST',

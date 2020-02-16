@@ -1,5 +1,5 @@
 const EventEmitter = require('events');
-const { parse } = require('./sheets_parse');
+const { getWeekModel } = require('./sheets_parse');
 const {todayShortDayStr, currTimeStr: nowTimeStr, timeStringInRangeExclusive: timeStrInRangeExclusive} = require('./helpers');
 
 class Scheduler extends EventEmitter{
@@ -23,7 +23,7 @@ class Scheduler extends EventEmitter{
 }
 
 function getExcersizes(scheduler, dayStr, startTimeStr, endTimeStr){
-    return parse(scheduler.sheet_id, scheduler.sheet_range)
+    return getWeekModel(scheduler.sheet_id, scheduler.sheet_range)
         .then(weekModel => {
             const today_excersizes = weekModel[dayStr];
             // console.log(`getExcersizes(${dayStr}, ${startTimeStr}, ${endTimeStr}). TODAY: ${JSON.stringify(today_excersizes)}`);
