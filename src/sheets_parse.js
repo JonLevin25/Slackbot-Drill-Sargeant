@@ -57,9 +57,14 @@ function parseRowsSorted(header, rows){
 
     rows.map(row => {
         const [time, ...excersizesByDay] = row;
-        excersizesByDay.map((excersize, i) => {
+        excersizesByDay.map((excersize, i) => ({
+            day: days[i],
+            excersize
+        }))
+        .filter(x => !!x.excersize) // get rid of empty excersizes
+        .forEach((x, i) => {
             const day = days[i];
-            weekModel[day].push({time, excersize});
+            weekModel[day].push({time, excersize: x.excersize});12
         });
     });
     
@@ -83,6 +88,6 @@ module.exports = { getWeekModel, getDayModel };
 
 
 // TESTING - remove
-// const sheet_id = "1j2qYteoEAysMf1lzSR3_W5UP6gWYyeVw31lOkYv5Gso";
-// const range = "WeeklySchedule!A1:H12";
-// getWeekModel(sheet_id, range).then(console.log).catch(console.error);
+// const configPath = require('path').resolve(__dirname, '../config.json');
+// const config = JSON.parse(fs.readFileSync(configPath));
+// getWeekModel(config.google_sheet_id, config.google_sheet_range).then(console.log).catch(console.error);
