@@ -40,7 +40,7 @@ async function sendSlackMorningMessage() {
     try {
         const todayExcersizes = await getDayModel(config.google_sheet_id, config.google_sheet_range);
         const slackMessage = new SlackMessage(
-            `Morning ladies! The time is ${currTimeStr()}. Here are your excersizes for today`);
+            `MORNING LADIES! IT IS ${currTimeStr()}.\nHere are your excesizes for the day:`);
 
         todayExcersizes.forEach(excersizeModel => {  
             const { time, excersize } = excersizeModel;
