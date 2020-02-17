@@ -31,8 +31,8 @@ scheduler.on('excersize', excersizeModel => {
 
 function sendSlackExcersize (excersizeModel) {
     const {time, excersize} = excersizeModel;
-    let slackMessage = new SlackMessage(`ITS TIME FOR ${excersize} MAGGOTS!`);
-    slackMessage.addAttachment(`*${excersize}* [${time}]`);
+    let slackMessage = new SlackMessage(`ITS TIME FOR ${excersize.toUpperCase()} MAGGOTS!`);
+    slackMessage.addAttachment(`*${excersize}*`);
     sendSlackMessage(slackMessage);
 }
 
@@ -44,7 +44,7 @@ async function sendSlackMorningMessage() {
 
         todayExcersizes.forEach(excersizeModel => {  
             const { time, excersize } = excersizeModel;
-            slackMessage.addAttachment(`*${time}*\t${excersize}`);
+            slackMessage.addAttachment(`*${time}*\t${excersize}`, 'none');
         });
 
         sendSlackMessage(slackMessage);
