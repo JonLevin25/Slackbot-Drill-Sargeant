@@ -13,6 +13,11 @@ class SlackMessage{
             mkdwn: markDown
         }
     }
+
+    static fromObject(obj){
+        if (!obj.text) return null;
+        return Object.assign(new SlackMessage(obj.text), obj);
+    }
     
     setText(text){
         this.requestBody.text = text;

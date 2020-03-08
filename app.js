@@ -5,9 +5,12 @@ const bodyParser = require('body-parser');
 const Scheduler = require('./src/excersize_scheduler');
 const { getDayModel } = require('./src/sheets_parse');
 const { currTimeStr } = require('./src/helpers');
+const readline = require('readline');
 
 const SlackMessage =  require('./src/slack/SlackMessage');
 const { sendSlackMessage, sendTestMessage } = require('./src/slack_wrapper');
+
+const SEND_MORNING_MESSAGE = false;
 
 
 /* Partial flow used from: https://www.youtube.com/watch?v=8XBNz7cKvsc */
@@ -20,11 +23,13 @@ const scheduler = new Scheduler(config.google_sheet_id, config.google_sheet_rang
 scheduler.start(30);
 
 // TODO: schedule this for every morning (cron?)
-sendSlackMorningMessage();
+if (SEND_MORNING_MESSAGE) sendSlackMorningMessage();
 
 scheduler.on('excersize', excersizeModel => {
     sendSlackExcersize(excersizeModel)
-})
+});
+
+initExpressApp();
 
 //postMessage(config.webhook_url, slackBody);
 // sendTestMessage('TEST!');
@@ -51,8 +56,7 @@ async function sendSlackMorningMessage() {
     } catch (err) { console.error(err)}
 }
 
-// --- UNUSED --- 
-function InitExpressApp(){
+function initExpressApp(){
     const app = express();
     app.use(bodyParser.json());
 
@@ -60,6 +64,21 @@ function InitExpressApp(){
         console.log("Home hit!");
         res.end("HIT!");
     });
+
+    app.post('/v1/send/', (req, res) => {
+        const reqBody = req.body;
+        console.log(`message received from ${req.ip}. Text: ${reqBody.text}`);
+        
+        const slackMessage = SlackMessage.fromObject(reqBody);
+        if (!slackMessage) {
+            res.statusCode = 400;
+            res.send('Bad Request: Slack Message could not be created from body!');
+        }
+        else {
+            res.end();
+            sendSlackMessage(slackMessage);
+        }
+    })
     
     // Receive mentions from slack - currently unused
     app.post(config.route, (req, res) => {
@@ -75,4 +94,25 @@ function InitExpressApp(){
     });
     
     app.listen(config.port);
+    console.log(`Express app listening on port ${config.port}!`);
 }
+
+
+function commandLoop(){
+    console.log('x');
+    rl.question(code => {
+        console.log('res' + code);
+        try { eval(code); }
+        catch (err) { console.error(err); }
+
+        commandLoop();
+    });
+}
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+
+commandLoop();
