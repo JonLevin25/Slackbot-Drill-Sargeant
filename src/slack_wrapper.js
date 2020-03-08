@@ -11,9 +11,17 @@ const webhook_url = slack_secrets.slack_webhook_url;
 
 const sendTestMessage = () => sendSlackMessage(new SlackMessage('Test!', markDown = true));
 const sendSlackMessage = async function(slackMessage){
-    if (!(slackMessage) instanceof SlackMessage)
-        console.error('sendSlackMessage expects param of type SlackMessage!');
+    if (typeof slackMessage === 'string' ){
+        console.log(`sendSlackMessage: plainText message received, will send as text!`);
+        slackMessage = new SlackMessage(slackMessage);
+    }
+    
+    else if (!(slackMessage instanceof SlackMessage)){
+        console.error(`sendSlackMessage: Invalid object received [${JSON.stringify(slackMessage)}]`);
+        return;
+    }
 
+    
     try {
         const res = await request({
             uri: webhook_url,
