@@ -55,7 +55,7 @@ function parseRowsSorted(header, rows){
         weekModel[day] = [];
     });
 
-    rows.map(row => {
+    rows.forEach(row => {
         const [time, ...excersizesByDay] = row;
         excersizesByDay.map((excersize, i) => ({
             day: days[i],
