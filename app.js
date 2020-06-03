@@ -3,16 +3,17 @@ const { getDayModel } = require('./src/sheets_parse');
 const { currTimeStr } = require('./src/helpers');
 const readline = require('readline');
 const { initExpressApp } = require('./src/server');
+const cron = require('cron');
 
 const SlackMessage =  require('./src/slack/SlackMessage');
 const { sendSlackMessage, sendTestMessage } = require('./src/slack_wrapper');
 
-const SEND_MORNING_MESSAGE = false;
+const SEND_MORNING_MESSAGE_ON_INIT = false;
 
 
 /* Partial flow used from: https://www.youtube.com/watch?v=8XBNz7cKvsc */
 
-var config = JSON.parse(fs.readFileSync('./config.json'));
+var config = require('./config.json');
 console.log("Config loaded!");
 
 const scheduler = new Scheduler(config.google_sheet_id, config.google_sheet_range);
@@ -20,7 +21,12 @@ const scheduler = new Scheduler(config.google_sheet_id, config.google_sheet_rang
 scheduler.start(30);
 
 // TODO: schedule this for every morning (cron?)
-if (SEND_MORNING_MESSAGE) sendSlackMorningMessage();
+if (SEND_MORNING_MESSAGE_ON_INIT) sendSlackMorningMessage();
+
+// Send every day [Sun-Thu] @ 10:00am 
+const cron_time = '00 00 10 * * 0-4';
+const morning_message_job = new cron.CronJob(cron_time, sendSlackMorningMessage);
+morning_message_job.start();
 
 scheduler.on('excersize', excersizeModel => {
     sendSlackExcersize(excersizeModel)
@@ -39,6 +45,7 @@ function sendSlackExcersize (excersizeModel) {
 }
 
 async function sendSlackMorningMessage() {
+    console.log('Sending morning message!')
     try {
         const todayExcersizes = await getDayModel(config.google_sheet_id, config.google_sheet_range);
         const slackMessage = new SlackMessage(
