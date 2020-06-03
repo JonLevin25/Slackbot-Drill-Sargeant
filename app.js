@@ -1,11 +1,8 @@
-const fs = require('fs');
-
-const express = require('express');
-const bodyParser = require('body-parser');
 const Scheduler = require('./src/excersize_scheduler');
 const { getDayModel } = require('./src/sheets_parse');
 const { currTimeStr } = require('./src/helpers');
 const readline = require('readline');
+const { initExpressApp } = require('./src/server');
 
 const SlackMessage =  require('./src/slack/SlackMessage');
 const { sendSlackMessage, sendTestMessage } = require('./src/slack_wrapper');
@@ -35,7 +32,7 @@ initExpressApp();
 // sendTestMessage('TEST!');
 
 function sendSlackExcersize (excersizeModel) {
-    const {time, excersize} = excersizeModel;
+    const { time, excersize } = excersizeModel;
     let slackMessage = new SlackMessage(`ITS TIME FOR ${excersize.toUpperCase()} MAGGOTS!`);
     slackMessage.addAttachment(`*${excersize}*`);
     sendSlackMessage(slackMessage);
@@ -54,47 +51,6 @@ async function sendSlackMorningMessage() {
 
         sendSlackMessage(slackMessage);
     } catch (err) { console.error(err)}
-}
-
-function initExpressApp(){
-    const app = express();
-    app.use(bodyParser.json());
-
-    app.get('/', (req, res) => {
-        console.log("Home hit!");
-        res.end("HIT!");
-    });
-
-    app.post('/v1/send/', (req, res) => {
-        const reqBody = req.body;
-        console.log(`message received from ${req.ip}. Text: ${reqBody.text}`);
-        
-        const slackMessage = SlackMessage.fromObject(reqBody);
-        if (!slackMessage) {
-            res.statusCode = 400;
-            res.send('Bad Request: Slack Message could not be created from body!');
-        }
-        else {
-            res.end();
-            sendSlackMessage(slackMessage);
-        }
-    })
-    
-    // Receive mentions from slack - currently unused
-    app.post(config.route, (req, res) => {
-        console.log(`request: ${req.body}`)
-    
-        // Slack route verification
-        if (req.body.type == 'url_verification'){
-            let challenge = req.body.challenge;
-    
-            console.log(`responding with ${challenge}`)
-            res.end(challenge);
-        }
-    });
-    
-    app.listen(config.port);
-    console.log(`Express app listening on port ${config.port}!`);
 }
 
 
