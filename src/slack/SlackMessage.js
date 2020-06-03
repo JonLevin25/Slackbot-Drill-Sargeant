@@ -10,7 +10,8 @@ class SlackMessage{
     constructor(text, markDown = true){
         this.requestBody = {
             text,
-            mkdwn: markDown
+            mkdwn: markDown,
+            link_names: true
         }
     }
 
